@@ -458,7 +458,10 @@ class TCPRelayHandler(object):
                     self._stage = STAGE_CONNECTING
                     remote_addr = ip
                     remote_port = self._remote_address[1]
-                    logging.info("connect to %s : %d" % (remote_addr, remote_port))
+                    logging.info("UDP connect to %s:%d from %s:%d via port %d" %
+                        (remote_addr, remote_port,
+                            self._client_address.keys()[0][0], self._client_address.keys()[0][1],
+                            self._config['server_port']))
 
                     remote_sock = self._create_remote_socket(remote_addr,
                                                              remote_port)
@@ -693,7 +696,7 @@ class TCPRelayHandler(object):
                     self._stage = STAGE_DNS
                     self._dns_resolver.resolve(remote_addr,
                                                self._handle_dns_resolved)
-                    logging.info('TCP connect %s:%d from %s:%d' % (remote_addr, remote_port, addr[0], addr[1]))
+                    logging.info("TCP connect to %s:%d from %s:%d via port %d" % (remote_addr, remote_port, addr[0], addr[1], self._config['server_port']))
                 else:
                     # ileagal request
                     rsp_data = self._pack_rsp_data(CMD_DISCONNECT, RSP_STATE_EMPTY)
@@ -1133,9 +1136,10 @@ class UDPRelay(object):
 
             logging.debug('UDP port %5d sockets %d' % (self._listen_port, len(self._sockets)))
 
-            logging.info('UDP data to %s:%d from %s:%d' %
+            logging.info("UDP data to %s:%d from %s:%d via port %d" %
                         (common.to_str(server_addr), server_port,
-                            r_addr[0], r_addr[1]))
+                            r_addr[0], r_addr[1],
+                            self._config['server_port']))
 
         if self._is_local:
             ref_iv = [encrypt.encrypt_new_iv(self._method)]
