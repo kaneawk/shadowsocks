@@ -1142,6 +1142,8 @@ class UDPRelay(object):
                             r_addr[0], r_addr[1],
                             self._config['server_port']))
 
+        self._cache.clear(256)
+
         if self._is_local:
             ref_iv = [encrypt.encrypt_new_iv(self._method)]
             self._protocol.obfs.server_info.iv = ref_iv[0]
@@ -1348,7 +1350,7 @@ class UDPRelay(object):
         logging.debug('UDP close')
         self._closed = True
         if not next_tick:
-            self._cache.clear()
+            self._cache.clear(0)
             if self._eventloop:
                 self._eventloop.remove_periodic(self.handle_periodic)
                 self._eventloop.remove(self._server_socket)
