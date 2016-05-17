@@ -450,7 +450,7 @@ class TCPRelayHandler(object):
                     data = self._handel_protocol_error(self._client_address, ogn_data)
                     header_result = parse_header(data)
             connecttype, remote_addr, remote_port, header_length = header_result
-            logging.info("%s connecting %s:%d from %s:%d via port %d" %
+            common.connect_log("%s connecting %s:%d from %s:%d via port %d" %
                         ((connecttype == 0) and 'TCP' or 'UDP',
                             common.to_str(remote_addr), remote_port,
                             self._client_address[0], self._client_address[1],
@@ -850,6 +850,9 @@ class TCPRelay(object):
         self.protocol_data = obfs.obfs(config['protocol']).init_data()
         self.obfs_data = obfs.obfs(config['obfs']).init_data()
 
+        if config.get('connect_verbose_info', 0) > 0:
+            common.connect_log = logging.info
+
         self._timeout = config['timeout']
         self._timeouts = []  # a list for all the handlers
         # we trim the timeouts once a while
@@ -939,10 +942,10 @@ class TCPRelay(object):
                         break
                     else:
                         if handler.remote_address:
-                            logging.warn('timed out: %s:%d' %
+                            logging.debug('timed out: %s:%d' %
                                          handler.remote_address)
                         else:
-                            logging.warn('timed out')
+                            logging.debug('timed out')
                         handler.destroy()
                         self._timeouts[pos] = None  # free memory
                         pos += 1
