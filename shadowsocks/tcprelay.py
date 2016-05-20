@@ -350,7 +350,7 @@ class TCPRelayHandler(object):
         return (host_post, 80)
 
     def _handel_protocol_error(self, client_address, ogn_data):
-        logging.warn("Protocol ERROR, TCP ogn data %s from %s:%d" % (binascii.hexlify(ogn_data), client_address[0], client_address[1]))
+        logging.warn("Protocol ERROR, TCP ogn data %s from %s:%d via port %d" % (binascii.hexlify(ogn_data), client_address[0], client_address[1], self._config['server_port']))
         self._encrypt_correct = False
         #create redirect or disconnect by hash code
         host, port = self._get_redirect_host(client_address, ogn_data)
