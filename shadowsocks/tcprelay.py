@@ -809,8 +809,8 @@ class TCPRelayHandler(object):
             logging.warn('unknown socket from %s:%d' % (self._client_address[0], self._client_address[1]))
 
     def _log_error(self, e):
-        logging.error('%s when handling connection from %s:%d' %
-                      (e, self._client_address[0], self._client_address[1]))
+        logging.error('%s when handling connection from %s:%d via port %d' %
+                      (e, self._client_address[0], self._client_address[1], self._config['server_port']))
 
     def destroy(self):
         # destroy the handler and release any resources
