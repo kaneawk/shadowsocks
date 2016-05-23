@@ -13,7 +13,7 @@
     "obfs": "http_simple_compatible",
     "obfs_param": "",
     "dns_ipv6": false,
-    "connect_verbose_info": 0,
+    "connect_verbose_info": 1,
     "redirect": "",
     "fast_open": false,
     "workers": 1
