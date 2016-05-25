@@ -777,9 +777,9 @@ class TCPRelayHandler(object):
         if self._remote_sock:
             logging.error(eventloop.get_sock_error(self._remote_sock))
             if self._remote_address:
-                logging.error("when connect to %s:%d from %s:%d" % (self._remote_address[0], self._remote_address[1], self._client_address[0], self._client_address[1]))
+                logging.error("when connect to %s:%d from %s:%d via port %d" % (self._remote_address[0], self._remote_address[1], self._client_address[0], self._client_address[1], self._config['server_port']))
             else:
-                logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
+                logging.error("exception from %s:%d via port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
         self.destroy()
 
     def handle_event(self, sock, event):
