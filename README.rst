@@ -1,7 +1,7 @@
 shadowsocks
 ===========
 
-|PyPI version| |Build Status| |Coverage Status|
+|PyPI version|
 
 A fast tunnel proxy that helps you bypass firewalls.
 
@@ -107,7 +107,3 @@ Bugs and Issues
 
 .. |PyPI version| image:: https://img.shields.io/pypi/v/shadowsocks.svg?style=flat
    :target: https://pypi.python.org/pypi/shadowsocks
-.. |Build Status| image:: https://img.shields.io/travis/shadowsocks/shadowsocks/master.svg?style=flat
-   :target: https://travis-ci.org/shadowsocks/shadowsocks
-.. |Coverage Status| image:: https://jenkins.shadowvpn.org/result/shadowsocks
-   :target: https://jenkins.shadowvpn.org/job/Shadowsocks/ws/PYENV/py34/label/linux/htmlcov/index.html
