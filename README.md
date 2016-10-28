@@ -1,7 +1,5 @@
-shadowsocks
+ShadowsocksR
 ===========
-
-[![PyPI version]][PyPI]
 
 A fast tunnel proxy that helps you bypass firewalls.
 
@@ -12,36 +10,47 @@ Server
 
 Debian / Ubuntu:
 
-    apt-get install python-pip
-    pip install shadowsocks
+    apt-get install git
+    git clone https://github.com/breakwa11/shadowsocks.git
 
 CentOS:
 
-    yum install python-setuptools && easy_install pip
-    pip install shadowsocks
+    yum install git
+    git clone https://github.com/breakwa11/shadowsocks.git
 
 Windows:
 
-See [Install Server on Windows]
+    git clone https://github.com/breakwa11/shadowsocks.git
 
-### Usage
+### Usage for single user on linux platform
 
-    ssserver -p 443 -k password -m aes-256-cfb
+If you clone it into "~/shadowsocks"  
+move to "~/shadowsocks", then run:
+
+    bash initcfg.sh
+
+move to "~/shadowsocks/shadowsocks", then run:
+
+    python server.py -p 443 -k password -m aes-128-cfb -O auth_aes128_md5_compatible -o tls1.2_ticket_auth_compatible
+
+Check all the options via `-h`.
+
+You can also use a configuration file instead (recommand), move to "~/shadowsocks" and edit the file "user-config.json", then move to "~/shadowsocks/shadowsocks" again, just run:
+
+    python server.py
 
 To run in the background:
 
-    sudo ssserver -p 443 -k password -m aes-256-cfb --user nobody -d start
+    ./logrun.sh
 
 To stop:
 
-    sudo ssserver -d stop
+    ./stop.sh
 
-To check the log:
+To monitor the log:
 
-    sudo less /var/log/shadowsocks.log
+    ./tail.sh
 
-Check all the options via `-h`. You can also use a [Configuration] file
-instead.
 
 Client
 ------
@@ -78,21 +87,15 @@ under the License.
 Bugs and Issues
 ----------------
 
-* [Troubleshooting]
 * [Issue Tracker]
 
 
 
 [Android]:           https://github.com/shadowsocks/shadowsocks-android
-[Configuration]:     https://github.com/breakwa11/shadowsocks-rss/wiki/Server-Setup
 [Debian sid]:        https://packages.debian.org/unstable/python/shadowsocks
-[iOS]:               https://github.com/shadowsocks/Potatso
+[iOS]:               https://github.com/shadowsocks/shadowsocks-iOS/wiki/Help
 [Issue Tracker]:     https://github.com/breakwa11/shadowsocks/issues?state=open
-[Install Server on Windows]: https://github.com/shadowsocks/shadowsocks/wiki/Install-Shadowsocks-Server-on-Windows
 [OpenWRT]:           https://github.com/shadowsocks/openwrt-shadowsocks
 [OS X]:              https://github.com/shadowsocks/shadowsocks-iOS/wiki/Shadowsocks-for-OSX-Help
-[PyPI]:              https://pypi.python.org/pypi/shadowsocks
-[PyPI version]:      https://img.shields.io/pypi/v/shadowsocks.svg?style=flat
-[Troubleshooting]:   https://github.com/shadowsocks/shadowsocks/wiki/Troubleshooting
-[Wiki]:              https://github.com/breakwa11/shadowsocks-rss/wiki
 [Windows]:           https://github.com/breakwa11/shadowsocks-csharp
+[Wiki]:              https://github.com/breakwa11/shadowsocks-rss/wiki
