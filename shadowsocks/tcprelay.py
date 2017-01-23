@@ -882,20 +882,22 @@ class TCPRelayHandler(object):
             self._update_stream(STREAM_UP, WAIT_STATUS_READING)
 
     def _on_local_error(self):
-        logging.debug('got local error')
         if self._local_sock:
-            logging.error(eventloop.get_sock_error(self._local_sock))
-            logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
+            err = eventloop.get_sock_error(self._local_sock)
+            if err.errno not in [errno.ECONNRESET]:
+                logging.error(err)
+                logging.error("local error, exception from %s:%d" % (self._client_address[0], self._client_address[1]))
         self.destroy()
 
     def _on_remote_error(self):
-        logging.debug('got remote error')
         if self._remote_sock:
-            logging.error(eventloop.get_sock_error(self._remote_sock))
-            if self._remote_address:
-                logging.error("when connect to %s:%d from %s:%d via port %d" % (self._remote_address[0], self._remote_address[1], self._client_address[0], self._client_address[1], self._config['server_port']))
-            else:
-                logging.error("exception from %s:%d via port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+            err = eventloop.get_sock_error(self._remote_sock)
+            if err.errno not in [errno.ECONNRESET]:
+                logging.error(err)
+                if self._remote_address:
+                    logging.error("remote error, when connect to %s:%d from %s:%d via port %d" % (self._remote_address[0], self._remote_address[1], self._client_address[0], self._client_address[1], self._config['server_port']))
+                else:
+                    logging.error("remote error, exception from %s:%d via port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
         self.destroy()
 
     def handle_event(self, sock, event):
