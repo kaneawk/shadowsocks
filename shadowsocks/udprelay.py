@@ -1232,10 +1232,14 @@ class UDPRelay(object):
 
             logging.debug('UDP port %5d sockets %d' % (self._listen_port, len(self._sockets)))
 
-            common.connect_log("UDP data to %s:%d from %s:%d via port %d" %
+            if uid is None:
+                user_id = self._listen_port
+            else:
+                user_id = struct.unpack('<I', client_uid)[0]
+            common.connect_log("UDP data to %s:%d from %s:%d via port %d by UID %d" %
                         (common.to_str(server_addr), server_port,
                             r_addr[0], r_addr[1],
-                            self._listen_port))
+                            self._listen_port, user_id))
         else:
             client, client_uid = client_pair
         self._cache.clear(self._udp_cache_size)
