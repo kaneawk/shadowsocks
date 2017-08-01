@@ -35,7 +35,7 @@ method_supported.update(auth.obfs_map)
 method_supported.update(auth_chain.obfs_map)
 
 def mu_protocol():
-    return ["auth_aes128_md5", "auth_aes128_sha1", "auth_chain_a"]
+    return ["auth_aes128_md5", "auth_aes128_sha1", "auth_chain_a", "auth_chain_b", "auth_chain_c", "auth_chain_d", "auth_chain_e"]
 
 class server_info(object):
     def __init__(self, data):

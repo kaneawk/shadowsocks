@@ -47,9 +47,29 @@ def create_auth_chain_b(method):
     return auth_chain_b(method)
 
 
+def create_auth_chain_c(method):
+    return auth_chain_c(method)
+
+
+def create_auth_chain_d(method):
+    return auth_chain_d(method)
+
+
+def create_auth_chain_e(method):
+    return auth_chain_e(method)
+
+
+def create_auth_chain_f(method):
+    return auth_chain_f(method)
+
+
 obfs_map = {
     'auth_chain_a': (create_auth_chain_a,),
     'auth_chain_b': (create_auth_chain_b,),
+    'auth_chain_c': (create_auth_chain_c,),
+    'auth_chain_d': (create_auth_chain_d,),
+    'auth_chain_e': (create_auth_chain_e,),
+    'auth_chain_f': (create_auth_chain_f,),
 }
 
 
@@ -396,6 +416,9 @@ class auth_chain_a(auth_base):
                          self.server_info.data.local_client_id,
                          struct.pack('<I', self.server_info.data.connection_id)])
 
+    def on_recv_auth_data(self, utc_time):
+        pass
+
     def client_pre_encrypt(self, buf):
         ret = b''
         ogn_data_len = len(buf)
@@ -530,6 +553,7 @@ class auth_chain_a(auth_base):
                 logging.info('%s: auth fail, data %s' % (self.no_compatible_method, binascii.hexlify(out_buf)))
                 return self.not_match_return(self.recv_buf)
 
+            self.on_recv_auth_data(utc_time)
             self.encryptor = encrypt.Encryptor(
                 to_bytes(base64.b64encode(self.user_key)) + to_bytes(base64.b64encode(self.last_client_hash)), 'rc4')
             self.recv_buf = self.recv_buf[36:]
@@ -713,9 +737,7 @@ class auth_chain_b(auth_chain_a):
         # final_pos 总是分布在pos~(data_size_list2.len-1)之间
         if final_pos < pos + len(self.data_size_list2) - 1:
             return 0
-        # 有1/len(self.data_size_list2)的概率不满足上一个if  ?
-        # 理论上不会运行到此处，因此可以插入运行断言  ?
-        # assert False
+        # 有1/len(self.data_size_list2)的概率不满足上一个if
 
         if buf_size > 1300:
             return random.next() % 31
@@ -724,3 +746,176 @@ class auth_chain_b(auth_chain_a):
         if buf_size > 400:
             return random.next() % 521
         return random.next() % 1021
+
+
+class auth_chain_c(auth_chain_b):
+    def __init__(self, method):
+        super(auth_chain_c, self).__init__(method)
+        self.salt = b"auth_chain_c"
+        self.no_compatible_method = 'auth_chain_c'
+        self.data_size_list0 = []
+
+    def init_data_size(self, key):
+        if self.data_size_list0:
+            self.data_size_list0 = []
+        random = xorshift128plus()
+        random.init_from_bin(key)
+        # 补全数组长为12~24-1
+        list_len = random.next() % (8 + 16) + (4 + 8)
+        for i in range(0, list_len):
+            self.data_size_list0.append((int)(random.next() % 2340 % 2040 % 1440))
+        self.data_size_list0.sort()
+
+    def set_server_info(self, server_info):
+        self.server_info = server_info
+        try:
+            max_client = int(server_info.protocol_param.split('#')[0])
+        except:
+            max_client = 64
+        self.server_info.data.set_max_client(max_client)
+        self.init_data_size(self.server_info.key)
+
+    def rnd_data_len(self, buf_size, last_hash, random):
+        other_data_size = buf_size + self.server_info.overhead
+        # 一定要在random使用前初始化，以保证服务器与客户端同步，保证包大小验证结果正确
+        random.init_from_bin_len(last_hash, buf_size)
+        # final_pos 总是分布在pos~(data_size_list0.len-1)之间
+        # 除非data_size_list0中的任何值均过小使其全部都无法容纳buf
+        if other_data_size >= self.data_size_list0[-1]:
+            if other_data_size >= 1440:
+                return 0
+            if other_data_size > 1300:
+                return random.next() % 31
+            if other_data_size > 900:
+                return random.next() % 127
+            if other_data_size > 400:
+                return random.next() % 521
+            return random.next() % 1021
+
+        pos = bisect.bisect_left(self.data_size_list0, other_data_size)
+        # random select a size in the leftover data_size_list0
+        final_pos = pos + random.next() % (len(self.data_size_list0) - pos)
+        return self.data_size_list0[final_pos] - other_data_size
+
+
+class auth_chain_d(auth_chain_b):
+    def __init__(self, method):
+        super(auth_chain_d, self).__init__(method)
+        self.salt = b"auth_chain_d"
+        self.no_compatible_method = 'auth_chain_d'
+        self.data_size_list0 = []
+
+    def check_and_patch_data_size(self, random):
+        # append new item
+        # when the biggest item(first time) or the last append item(other time) are not big enough.
+        # but set a limit size (64) to avoid stack overflow.
+        if self.data_size_list0[-1] < 1300 and len(self.data_size_list0) < 64:
+            self.data_size_list0.append((int)(random.next() % 2340 % 2040 % 1440))
+            self.check_and_patch_data_size(random)
+
+    def init_data_size(self, key):
+        if self.data_size_list0:
+            self.data_size_list0 = []
+        random = xorshift128plus()
+        random.init_from_bin(key)
+        # 补全数组长为12~24-1
+        list_len = random.next() % (8 + 16) + (4 + 8)
+        for i in range(0, list_len):
+            self.data_size_list0.append((int)(random.next() % 2340 % 2040 % 1440))
+        self.data_size_list0.sort()
+        old_len = len(self.data_size_list0)
+        self.check_and_patch_data_size(random)
+        # if check_and_patch_data_size are work, re-sort again.
+        if old_len != len(self.data_size_list0):
+            self.data_size_list0.sort()
+
+    def set_server_info(self, server_info):
+        self.server_info = server_info
+        try:
+            max_client = int(server_info.protocol_param.split('#')[0])
+        except:
+            max_client = 64
+        self.server_info.data.set_max_client(max_client)
+        self.init_data_size(self.server_info.key)
+
+    def rnd_data_len(self, buf_size, last_hash, random):
+        other_data_size = buf_size + self.server_info.overhead
+        # if other_data_size > the bigest item in data_size_list0, not padding any data
+        if other_data_size >= self.data_size_list0[-1]:
+            return 0
+
+        random.init_from_bin_len(last_hash, buf_size)
+        pos = bisect.bisect_left(self.data_size_list0, other_data_size)
+        # random select a size in the leftover data_size_list0
+        final_pos = pos + random.next() % (len(self.data_size_list0) - pos)
+        return self.data_size_list0[final_pos] - other_data_size
+
+
+class auth_chain_e(auth_chain_d):
+    def __init__(self, method):
+        super(auth_chain_e, self).__init__(method)
+        self.salt = b"auth_chain_e"
+        self.no_compatible_method = 'auth_chain_e'
+
+    def rnd_data_len(self, buf_size, last_hash, random):
+        random.init_from_bin_len(last_hash, buf_size)
+        other_data_size = buf_size + self.server_info.overhead
+        # if other_data_size > the bigest item in data_size_list0, not padding any data
+        if other_data_size >= self.data_size_list0[-1]:
+            return 0
+
+        # use the mini size in the data_size_list0
+        pos = bisect.bisect_left(self.data_size_list0, other_data_size)
+        return self.data_size_list0[pos] - other_data_size
+
+
+# auth_chain_f
+# when every connect create, generate size_list will different when every day or every custom time interval which set in the config
+class auth_chain_f(auth_chain_e):
+    def __init__(self, method):
+        super(auth_chain_f, self).__init__(method)
+        self.salt = b"auth_chain_f"
+        self.no_compatible_method = 'auth_chain_f'
+
+    def set_server_info(self, server_info):
+        self.server_info = server_info
+        try:
+            max_client = int(server_info.protocol_param.split('#')[0])
+        except:
+            max_client = 64
+        self.server_info.data.set_max_client(max_client)
+        try:
+            self.key_change_interval = int(server_info.protocol_param.split('#')[1])  # config are in second
+        except:
+            self.key_change_interval = 60 * 60 * 24  # a day by second
+
+    def on_recv_auth_data(self, utc_time):
+        self.key_change_datetime_key = int(utc_time / self.key_change_interval)
+        self.key_change_datetime_key_bytes = []  # big bit first list
+        for i in range(7, -1, -1):  # big-ending compare to c
+            self.key_change_datetime_key_bytes.append((self.key_change_datetime_key >> (8 * i)) & 0xFF)
+        self.init_data_size(self.server_info.key)
+
+    def init_data_size(self, key):
+        if self.data_size_list0:
+            self.data_size_list0 = []
+        random = xorshift128plus()
+        # key xor with key_change_datetime_key
+        new_key = bytearray(key)
+        new_key_str = ''
+        for i in range(0, 8):
+            new_key[i] ^= self.key_change_datetime_key_bytes[i]
+            new_key_str += chr(new_key[i])
+        for i in range(8, len(new_key)):
+            new_key_str += chr(new_key[i])
+        random.init_from_bin(to_bytes(new_key_str))
+        # 补全数组长为12~24-1
+        list_len = random.next() % (8 + 16) + (4 + 8)
+        for i in range(0, list_len):
+            self.data_size_list0.append(int(random.next() % 2340 % 2040 % 1440))
+        self.data_size_list0.sort()
+        old_len = len(self.data_size_list0)
+        self.check_and_patch_data_size(random)
+        # if check_and_patch_data_size are work, re-sort again.
+        if old_len != len(self.data_size_list0):
+            self.data_size_list0.sort()
