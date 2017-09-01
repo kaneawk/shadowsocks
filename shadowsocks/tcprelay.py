@@ -1161,12 +1161,18 @@ class TCPRelayHandler(object):
         if self._protocol:
             self._protocol.dispose()
             self._protocol = None
+
+        self._encryptor.dispose()
         self._encryptor = None
         self._dns_resolver.remove_callback(self._handle_dns_resolved)
         self._server.remove_handler(self)
         if self._add_ref > 0:
             self._server.add_connection(-1)
             self._server.stat_add(self._client_address[0], -1)
+
+        #import gc
+        #gc.collect()
+        #logging.debug("gc %s" % (gc.garbage,))
 
 class TCPRelay(object):
     def __init__(self, config, dns_resolver, is_local, stat_callback=None, stat_counter=None):

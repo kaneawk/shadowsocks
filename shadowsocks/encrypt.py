@@ -22,7 +22,7 @@ import sys
 import hashlib
 import logging
 
-from shadowsocks import common
+from shadowsocks import common, lru_cache
 from shadowsocks.crypto import rc4_md5, openssl, sodium, table
 
 
@@ -39,7 +39,7 @@ def random_string(length):
     except NotImplementedError as e:
         return openssl.rand_bytes(length)
 
-cached_keys = {}
+cached_keys = lru_cache.LRUCache(timeout=180)
 
 
 def try_cipher(key, method=None):
@@ -49,8 +49,6 @@ def try_cipher(key, method=None):
 def EVP_BytesToKey(password, key_len, iv_len):
     # equivalent to OpenSSL's EVP_BytesToKey() with count 1
     # so that we make the same key and iv as nodejs version
-    if hasattr(password, 'encode'):
-        password = password.encode('utf-8')
     cached_key = '%s-%d-%d' % (password, key_len, iv_len)
     r = cached_keys.get(cached_key, None)
     if r:
@@ -69,6 +67,7 @@ def EVP_BytesToKey(password, key_len, iv_len):
     key = ms[:key_len]
     iv = ms[key_len:key_len + iv_len]
     cached_keys[cached_key] = (key, iv)
+    cached_keys.sweep()
     return key, iv
 
 
@@ -145,6 +144,11 @@ class Encryptor(object):
             return self.decipher.update(buf)
         else:
             return b''
+
+    def dispose(self):
+        if self.decipher is not None:
+            self.decipher.clean()
+            self.decipher = None
 
 def encrypt_all(password, method, op, data):
     result = []

@@ -30,9 +30,11 @@ loaded = False
 
 buf_size = 2048
 
+ctx_cleanup = None
+
 
 def load_openssl():
-    global loaded, libcrypto, buf
+    global loaded, libcrypto, buf, ctx_cleanup
 
     libcrypto = util.find_library(('crypto', 'eay32'),
                                   'EVP_get_cipherbyname',
@@ -51,8 +53,10 @@ def load_openssl():
 
     if hasattr(libcrypto, "EVP_CIPHER_CTX_cleanup"):
         libcrypto.EVP_CIPHER_CTX_cleanup.argtypes = (c_void_p,)
+        ctx_cleanup = libcrypto.EVP_CIPHER_CTX_cleanup
     else:
         libcrypto.EVP_CIPHER_CTX_reset.argtypes = (c_void_p,)
+        ctx_cleanup = libcrypto.EVP_CIPHER_CTX_reset
     libcrypto.EVP_CIPHER_CTX_free.argtypes = (c_void_p,)
 
     libcrypto.RAND_bytes.restype = c_int
@@ -120,11 +124,9 @@ class OpenSSLCrypto(object):
 
     def clean(self):
         if self._ctx:
-            if hasattr(libcrypto, "EVP_CIPHER_CTX_cleanup"):
-                libcrypto.EVP_CIPHER_CTX_cleanup(self._ctx)
-            else:
-                libcrypto.EVP_CIPHER_CTX_reset(self._ctx)
+            ctx_cleanup(self._ctx)
             libcrypto.EVP_CIPHER_CTX_free(self._ctx)
+            self._ctx = None
 
 
 ciphers = {

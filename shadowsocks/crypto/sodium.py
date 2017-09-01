@@ -104,6 +104,8 @@ class SodiumCrypto(object):
         # strip off the padding
         return buf.raw[padding:padding + l]
 
+    def clean(self):
+        pass
 
 ciphers = {
     'salsa20': (32, 8, SodiumCrypto),
