@@ -791,7 +791,7 @@ class TCPRelayHandler(object):
                                     raise e
                             addr, port = self._remote_sock.getsockname()[:2]
                             common.connect_log('TCP connecting %s(%s):%d from %s:%d by user %d' %
-                                (common.to_str(self._remote_address[0]), common.to_str(remote_addr), remote_port, addr, port, self._user_id))
+                                (common.to_str(self._remote_address[0]), common.to_str(remote_addr), remote_port, common.to_str(self._client_address[0]), port, self._user_id))
 
                             self._loop.add(remote_sock,
                                        eventloop.POLL_ERR | eventloop.POLL_OUT,
