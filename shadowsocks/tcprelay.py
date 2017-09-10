@@ -367,7 +367,7 @@ class TCPRelayHandler(object):
                     uncomplete = True
                 else:
                     shell.print_exception(e)
-                    logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                     self.destroy()
                     return False
             return True
@@ -393,12 +393,12 @@ class TCPRelayHandler(object):
                 else:
                     #traceback.print_exc()
                     shell.print_exception(e)
-                    logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                     self.destroy()
                     return False
             except Exception as e:
                 shell.print_exception(e)
-                logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                 self.destroy()
                 return False
         if uncomplete:
@@ -569,7 +569,7 @@ class TCPRelayHandler(object):
                     shell.print_exception(e)
                     if self._config['verbose']:
                         traceback.print_exc()
-                    logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                     self.destroy()
 
     def _get_head_size(self, buf, def_value):
@@ -809,7 +809,7 @@ class TCPRelayHandler(object):
                     shell.print_exception(e)
                     if self._config['verbose']:
                         traceback.print_exc()
-                    logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
         self.destroy()
 
     def _get_read_size(self, sock, recv_buffer_size, up):
@@ -864,7 +864,7 @@ class TCPRelayHandler(object):
                             server_info.overhead = self._overhead
                     except Exception as e:
                         shell.print_exception(e)
-                        logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                        logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                         self.destroy()
                         return
                     if obfs_decode[2]:
@@ -902,7 +902,7 @@ class TCPRelayHandler(object):
                                 return
                     except Exception as e:
                         shell.print_exception(e)
-                        logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                        logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                         self.destroy()
                         return
             else:
@@ -968,7 +968,7 @@ class TCPRelayHandler(object):
                     obfs_decode = self._obfs.client_decode(data)
                 except Exception as e:
                     shell.print_exception(e)
-                    logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                     self.destroy()
                     return
                 if obfs_decode[1]:
@@ -984,7 +984,7 @@ class TCPRelayHandler(object):
                         self._tcp_mss = self._protocol.get_server_info().tcp_mss
                 except Exception as e:
                     shell.print_exception(e)
-                    logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
                     self.destroy()
                     return
             else:
@@ -1002,7 +1002,7 @@ class TCPRelayHandler(object):
             shell.print_exception(e)
             if self._config['verbose']:
                 traceback.print_exc()
-            logging.error("exception from %s:%d on port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+            logging.error("exception from %s:%d" % (self._client_address[0], self._client_address[1]))
             self.destroy()
 
     def _on_local_write(self):
@@ -1038,9 +1038,9 @@ class TCPRelayHandler(object):
             if err.errno not in [errno.ECONNRESET]:
                 logging.error(err)
                 if self._remote_address:
-                    logging.error("remote error, when connect to %s:%d from %s:%d via port %d" % (self._remote_address[0], self._remote_address[1], self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("remote error, when connect to %s:%d" % (self._remote_address[0], self._remote_address[1]))
                 else:
-                    logging.error("remote error, exception from %s:%d via port %d" % (self._client_address[0], self._client_address[1], self._config['server_port']))
+                    logging.error("remote error, exception from %s:%d" % (self._client_address[0], self._client_address[1]))
         self.destroy()
 
     def handle_event(self, sock, fd, event):
@@ -1093,8 +1093,8 @@ class TCPRelayHandler(object):
         return handle
 
     def _log_error(self, e):
-        logging.error('%s when handling connection from %s:%d via port %d' %
-                      (e, self._client_address[0], self._client_address[1], self._config['server_port']))
+        logging.error('%s when handling connection from %s:%d' %
+                      (e, self._client_address[0], self._client_address[1]))
 
     def stage(self):
         return self._stage

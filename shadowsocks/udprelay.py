@@ -313,7 +313,7 @@ class UDPRelay(object):
 
     def _handel_protocol_error(self, client_address, ogn_data):
         #raise Exception('can not parse header')
-        logging.warn("Protocol ERROR, UDP ogn data %s from %s:%d via port %d" % (binascii.hexlify(ogn_data), client_address[0], client_address[1], self._config['server_port']))
+        logging.warn("Protocol ERROR, UDP ogn data %s from %s:%d" % (binascii.hexlify(ogn_data), client_address[0], client_address[1]))
 
     def _socket_bind_addr(self, sock, af):
         bind_addr = ''
