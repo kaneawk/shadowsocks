@@ -432,14 +432,14 @@ class TCPRelayHandler(object):
                 if self._udpv6_send_pack_id == 0:
                     addr, port = self._remote_sock_v6.getsockname()[:2]
                     common.connect_log('UDPv6 sendto %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], addr, port, self._user_id))
+                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], common.to_str(self._client_address[0]), port, self._user_id))
                 self._udpv6_send_pack_id += 1
             else:
                 self._remote_sock.sendto(data, (server_addr, remote_addr[1]))
                 if self._udp_send_pack_id == 0:
                     addr, port = self._remote_sock.getsockname()[:2]
                     common.connect_log('UDP sendto %s(%s):%d from %s:%d by user %d' %
-                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], addr, port, self._user_id))
+                        (common.to_str(remote_addr[0]), common.to_str(server_addr), remote_addr[1], common.to_str(self._client_address[0]), port, self._user_id))
                 self._udp_send_pack_id += 1
             return True
         except Exception as e:
