@@ -17,7 +17,7 @@
 from __future__ import absolute_import, division, print_function, \
     with_statement
 
-from ctypes import c_char_p, c_int, c_long, byref,\
+from ctypes import c_char_p, c_int, c_long, byref, \
     create_string_buffer, c_void_p
 
 from shadowsocks import common
@@ -77,6 +77,7 @@ def load_cipher(cipher_name):
         return cipher()
     return None
 
+
 def rand_bytes(length):
     if not loaded:
         load_openssl()
@@ -85,6 +86,7 @@ def rand_bytes(length):
     if r <= 0:
         raise Exception('RAND_bytes return error')
     return buf.raw
+
 
 class OpenSSLCrypto(object):
     def __init__(self, cipher_name, key, iv, op):
@@ -133,6 +135,9 @@ ciphers = {
     'aes-128-cbc': (16, 16, OpenSSLCrypto),
     'aes-192-cbc': (24, 16, OpenSSLCrypto),
     'aes-256-cbc': (32, 16, OpenSSLCrypto),
+    'aes-128-gcm': (16, 16, OpenSSLCrypto),
+    'aes-192-gcm': (24, 16, OpenSSLCrypto),
+    'aes-256-gcm': (32, 16, OpenSSLCrypto),
     'aes-128-cfb': (16, 16, OpenSSLCrypto),
     'aes-192-cfb': (24, 16, OpenSSLCrypto),
     'aes-256-cfb': (32, 16, OpenSSLCrypto),
@@ -162,7 +167,6 @@ ciphers = {
 
 
 def run_method(method):
-
     cipher = OpenSSLCrypto(method, b'k' * 32, b'i' * 16, 1)
     decipher = OpenSSLCrypto(method, b'k' * 32, b'i' * 16, 0)
 
@@ -197,5 +201,20 @@ def test_rc4():
     run_method('rc4')
 
 
+def test_all():
+    for k, v in ciphers.items():
+        print(k)
+        try:
+            run_method(k)
+        except AssertionError as e:
+            eprint("AssertionError===========" + k)
+            eprint(e)
+
+
+def eprint(*args, **kwargs):
+    import sys
+    print(*args, file=sys.stderr, **kwargs)
+
+
 if __name__ == '__main__':
-    test_aes_128_cfb()
+    test_all()
