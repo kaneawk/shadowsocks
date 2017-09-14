@@ -22,6 +22,13 @@ import logging
 
 
 def find_library_nt(name):
+    # type: (str) -> list
+    """
+    find lib in windows in all the directory in path env
+
+    :param name: can end with `.dll` or not
+    :return: lib results list
+    """
     # modified from ctypes.util
     # ctypes.util.find_library just returns first result he found
     # but we want to try them all
