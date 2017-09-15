@@ -132,6 +132,8 @@ class OpenSSLCrypto(object):
 
 
 ciphers = {
+    # CBC mode need a special use way that different from other.
+    # CBC mode encrypt message with 16n length, and need 16n+1 length space to decrypt it , otherwise don't decrypt it
     'aes-128-cbc': (16, 16, OpenSSLCrypto),
     'aes-192-cbc': (24, 16, OpenSSLCrypto),
     'aes-256-cbc': (32, 16, OpenSSLCrypto),
