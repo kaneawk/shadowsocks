@@ -20,7 +20,7 @@ from __future__ import absolute_import, division, print_function, \
 from ctypes import c_char_p, c_int, c_ulong, c_ulonglong, byref, \
     create_string_buffer, c_void_p
 
-import sys
+import logging
 
 from shadowsocks.crypto import util
 
@@ -61,7 +61,7 @@ def load_libsodium():
                                                                  c_char_p, c_ulong,
                                                                  c_char_p)
     except:
-        print("ChaCha20 IETF not support.", file=sys.stderr)
+        logging.info("ChaCha20 IETF not support.")
         pass
 
     try:
@@ -71,7 +71,7 @@ def load_libsodium():
                                                             c_char_p, c_ulonglong,
                                                             c_char_p)
     except:
-        print("XSalsa20 not support.", file=sys.stderr)
+        logging.info("XSalsa20 not support.")
         pass
 
     try:
@@ -81,7 +81,7 @@ def load_libsodium():
                                                              c_char_p, c_ulonglong,
                                                              c_char_p)
     except:
-        print("XChaCha20 not support. XChaCha20 only support since libsodium v1.0.12", file=sys.stderr)
+        logging.info("XChaCha20 not support. XChaCha20 only support since libsodium v1.0.12")
         pass
 
     buf = create_string_buffer(buf_size)
