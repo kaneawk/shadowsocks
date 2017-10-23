@@ -266,7 +266,7 @@ class TCPRelayHandler(object):
     def _create_encryptor(self, config):
         try:
             self._encryptor = encrypt.Encryptor(config['password'],
-                                                config['method'])
+                                                config['method'], None, True)
             return True
         except Exception:
             self._stage = STAGE_DESTROYED

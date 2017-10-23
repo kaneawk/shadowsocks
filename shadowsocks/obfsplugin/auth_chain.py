@@ -349,7 +349,6 @@ class auth_chain_a(auth_base):
     def pack_client_data(self, buf):
         buf = self.encryptor.encrypt(buf)
         data = self.rnd_data(len(buf), buf, self.last_client_hash, self.random_client)
-        data_len = len(data) + 8
         mac_key = self.user_key + struct.pack('<I', self.pack_id)
         length = len(buf) ^ struct.unpack('<H', self.last_client_hash[14:])[0]
         data = struct.pack('<H', length) + data
@@ -361,7 +360,6 @@ class auth_chain_a(auth_base):
     def pack_server_data(self, buf):
         buf = self.encryptor.encrypt(buf)
         data = self.rnd_data(len(buf), buf, self.last_server_hash, self.random_server)
-        data_len = len(data) + 8
         mac_key = self.user_key + struct.pack('<I', self.pack_id)
         length = len(buf) ^ struct.unpack('<H', self.last_server_hash[14:])[0]
         data = struct.pack('<H', length) + data
@@ -372,7 +370,6 @@ class auth_chain_a(auth_base):
 
     def pack_auth_data(self, auth_data, buf):
         data = auth_data
-        data_len = 12 + 4 + 16 + 4
         data = data + (struct.pack('<H', self.server_info.overhead) + struct.pack('<H', 0))
         mac_key = self.server_info.iv + self.server_info.key
 
@@ -569,7 +566,7 @@ class auth_chain_a(auth_base):
             if length >= 4096:
                 self.raw_trans = True
                 self.recv_buf = b''
-                if self.recv_id == 0:
+                if self.recv_id == 1:
                     logging.info(self.no_compatible_method + ': over size')
                     return (b'E' * 2048, False)
                 else:
@@ -585,7 +582,7 @@ class auth_chain_a(auth_base):
                 ))
                 self.raw_trans = True
                 self.recv_buf = b''
-                if self.recv_id == 0:
+                if self.recv_id == 1:
                     return (b'E' * 2048, False)
                 else:
                     raise Exception('server_post_decrype data uncorrect checksum')

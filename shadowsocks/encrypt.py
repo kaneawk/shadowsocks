@@ -46,7 +46,7 @@ def try_cipher(key, method=None):
     Encryptor(key, method)
 
 
-def EVP_BytesToKey(password, key_len, iv_len):
+def EVP_BytesToKey(password, key_len, iv_len, cache):
     # equivalent to OpenSSL's EVP_BytesToKey() with count 1
     # so that we make the same key and iv as nodejs version
     cached_key = '%s-%d-%d' % (password, key_len, iv_len)
@@ -66,13 +66,14 @@ def EVP_BytesToKey(password, key_len, iv_len):
     ms = b''.join(m)
     key = ms[:key_len]
     iv = ms[key_len:key_len + iv_len]
-    cached_keys[cached_key] = (key, iv)
-    cached_keys.sweep()
+    if cache:
+        cached_keys[cached_key] = (key, iv)
+        cached_keys.sweep()
     return key, iv
 
 
 class Encryptor(object):
-    def __init__(self, key, method, iv = None):
+    def __init__(self, key, method, iv = None, cache = False):
         self.key = key
         self.method = method
         self.iv = None
@@ -81,6 +82,7 @@ class Encryptor(object):
         self.iv_buf = b''
         self.cipher_key = b''
         self.decipher = None
+        self.cache = cache
         method = method.lower()
         self._method_info = self.get_method_info(method)
         if self._method_info:
@@ -105,7 +107,7 @@ class Encryptor(object):
         password = common.to_bytes(password)
         m = self._method_info
         if m[0] > 0:
-            key, iv_ = EVP_BytesToKey(password, m[0], m[1])
+            key, iv_ = EVP_BytesToKey(password, m[0], m[1], self.cache)
         else:
             # key_length == 0 indicates we should use the key directly
             key, iv = password, b''
@@ -119,6 +121,9 @@ class Encryptor(object):
 
     def encrypt(self, buf):
         if len(buf) == 0:
+            if not self.iv_sent:
+                self.iv_sent = True
+                return self.cipher_iv
             return buf
         if self.iv_sent:
             return self.cipher.update(buf)
@@ -155,7 +160,7 @@ def encrypt_all(password, method, op, data):
     method = method.lower()
     (key_len, iv_len, m) = method_supported[method]
     if key_len > 0:
-        key, _ = EVP_BytesToKey(password, key_len, iv_len)
+        key, _ = EVP_BytesToKey(password, key_len, iv_len, True)
     else:
         key = password
     if op:
@@ -172,7 +177,7 @@ def encrypt_key(password, method):
     method = method.lower()
     (key_len, iv_len, m) = method_supported[method]
     if key_len > 0:
-        key, _ = EVP_BytesToKey(password, key_len, iv_len)
+        key, _ = EVP_BytesToKey(password, key_len, iv_len, True)
     else:
         key = password
     return key
