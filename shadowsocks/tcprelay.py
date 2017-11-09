@@ -1162,8 +1162,9 @@ class TCPRelayHandler(object):
             self._protocol.dispose()
             self._protocol = None
 
-        self._encryptor.dispose()
-        self._encryptor = None
+        if self._encryptor:
+            self._encryptor.dispose()
+            self._encryptor = None
         self._dns_resolver.remove_callback(self._handle_dns_resolved)
         self._server.remove_handler(self)
         if self._add_ref > 0:
