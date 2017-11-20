@@ -108,8 +108,8 @@ def main():
                      (protocol, password, method, obfs, obfs_param))
         if 'server_ipv6' in a_config:
             try:
-                if len(a_config['server_ipv6']) > 2 and a_config['server_ipv6'][0] == "[" and a_config['server_ipv6'][
-                    -1] == "]":
+                if len(a_config['server_ipv6']) > 2 and a_config['server_ipv6'][0] == b"[" and a_config['server_ipv6'][
+                    -1] == b"]":
                     a_config['server_ipv6'] = a_config['server_ipv6'][1:-1]
                 a_config['server_port'] = int(port)
                 a_config['password'] = password
@@ -120,7 +120,7 @@ def main():
                 a_config['obfs_param'] = obfs_param
                 a_config['out_bind'] = bind
                 a_config['out_bindv6'] = bindv6
-                a_config['server'] = a_config['server_ipv6']
+                a_config['server'] = common.to_str(a_config['server_ipv6'])
                 logging.info("starting server at [%s]:%d" %
                              (a_config['server'], int(port)))
                 tcp_servers.append(tcprelay.TCPRelay(a_config, dns_resolver, False, stat_counter=stat_counter_dict))

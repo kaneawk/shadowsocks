@@ -117,14 +117,14 @@ class ServerPool(object):
 			else:
 				a_config = self.config.copy()
 				a_config.update(user_config)
-				if len(a_config['server_ipv6']) > 2 and a_config['server_ipv6'][0] == "[" and a_config['server_ipv6'][-1] == "]":
+				if len(a_config['server_ipv6']) > 2 and a_config['server_ipv6'][0] == b"[" and a_config['server_ipv6'][-1] == b"]":
 					a_config['server_ipv6'] = a_config['server_ipv6'][1:-1]
-				a_config['server'] = a_config['server_ipv6']
+				a_config['server'] = common.to_str(a_config['server_ipv6'])
 				a_config['server_port'] = port
 				a_config['max_connect'] = 128
 				a_config['method'] = common.to_str(a_config['method'])
 				try:
-					logging.info("starting server at [%s]:%d" % (common.to_str(a_config['server']), port))
+					logging.info("starting server at [%s]:%d" % (a_config['server'], port))
 
 					tcp_server = tcprelay.TCPRelay(a_config, self.dns_resolver, False, stat_counter=self.stat_counter)
 					tcp_server.add_to_loop(self.loop)
@@ -134,7 +134,7 @@ class ServerPool(object):
 					udp_server.add_to_loop(self.loop)
 					self.udp_ipv6_servers_pool.update({port: udp_server})
 
-					if common.to_str(a_config['server_ipv6']) == "::":
+					if a_config['server_ipv6'] == "::":
 						ipv6_ok = True
 				except Exception as e:
 					logging.warn("IPV6 %s " % (e,))
@@ -150,7 +150,7 @@ class ServerPool(object):
 				a_config['max_connect'] = 128
 				a_config['method'] = common.to_str(a_config['method'])
 				try:
-					logging.info("starting server at %s:%d" % (common.to_str(a_config['server']), port))
+					logging.info("starting server at %s:%d" % (a_config['server'], port))
 
 					tcp_server = tcprelay.TCPRelay(a_config, self.dns_resolver, False)
 					tcp_server.add_to_loop(self.loop)
