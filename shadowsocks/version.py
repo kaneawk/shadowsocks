@@ -16,5 +16,5 @@
 # under the License.
 
 def version():
-    return 'SSRR 3.2.1 2017-10-15'
+    return 'SSRR 3.2.2 2018-05-22'
 
