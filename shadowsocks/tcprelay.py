@@ -490,7 +490,6 @@ class TCPRelayHandler(object):
             return host_port[((hash_code & 0xffffffff) + addr) % len(host_port)]
 
         else:
-            host_port = []
             for host in host_list:
                 items_sum = common.to_str(host).rsplit('#', 1)
                 items_match = common.to_str(items_sum[0]).rsplit(':', 1)

@@ -23,7 +23,7 @@ import hashlib
 import logging
 
 from shadowsocks import common
-from shadowsocks.obfsplugin import plain, http_simple, obfs_tls, verify, auth, auth_chain
+from shadowsocks.obfsplugin import plain, http_simple, obfs_tls, verify, auth, auth_chain, auth_akarin
 
 
 method_supported = {}
@@ -33,9 +33,12 @@ method_supported.update(obfs_tls.obfs_map)
 method_supported.update(verify.obfs_map)
 method_supported.update(auth.obfs_map)
 method_supported.update(auth_chain.obfs_map)
+method_supported.update(auth_akarin.obfs_map)
 
 def mu_protocol():
-    return ["auth_aes128_md5", "auth_aes128_sha1", "auth_chain_a", "auth_chain_b", "auth_chain_c", "auth_chain_d", "auth_chain_e"]
+    return {"auth_aes128_md5", "auth_aes128_sha1",
+            "auth_chain_a", "auth_chain_b", "auth_chain_c", "auth_chain_d", "auth_chain_e", "auth_chain_f",
+            "auth_akarin_rand", "auth_akarin_spec_a"}
 
 class server_info(object):
     def __init__(self, data):

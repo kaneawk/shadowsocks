@@ -162,7 +162,7 @@ class UDPRelay(object):
         self.server_user_transfer_ul = {}
         self.server_user_transfer_dl = {}
 
-        if common.to_bytes(config['protocol']) in obfs.mu_protocol():
+        if common.to_str(config['protocol']) in obfs.mu_protocol():
             self._update_users(None, None)
 
         self.protocol_data = obfs.obfs(config['protocol']).init_data()
