@@ -201,8 +201,8 @@ class http_simple(plain.plain):
                 pos = host.find(":")
                 if pos >= 0:
                     host = host[:pos]
-                hosts = self.server_info.obfs_param.split(',')
-                if host not in hosts:
+                hosts = self.server_info.obfs_param.split(b',')
+                if common.to_bytes(host) not in hosts:
                     return self.not_match_return(buf)
             if len(ret_buf) < 4:
                 return self.error_return(buf)
@@ -210,7 +210,7 @@ class http_simple(plain.plain):
                 ret_buf += datas[1]
             if len(ret_buf) >= 13:
                 self.has_recv_header = True
-                return (ret_buf, True, False)
+                return (ret_buf, True, False, host)
             return self.not_match_return(buf)
         else:
             return (b'', True, False)
