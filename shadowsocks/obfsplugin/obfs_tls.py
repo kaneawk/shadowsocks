@@ -56,7 +56,6 @@ class obfs_auth_data(object):
         self.client_data = lru_cache.LRUCache(60 * 5)
         self.client_id = os.urandom(32)
         self.startup_time = int(time.time() - 60 * 30) & 0xFFFFFFFF
-        self.ticket_buf = {}
 
 class tls_ticket_auth(plain.plain):
     def __init__(self, method):
@@ -112,9 +111,7 @@ class tls_ticket_auth(plain.plain):
             host = random.choice(hosts)
             ext += self.sni(host)
             ext += b"\x00\x17\x00\x00"
-            if host not in self.server_info.data.ticket_buf:
-                self.server_info.data.ticket_buf[host] = os.urandom((struct.unpack('>H', os.urandom(2))[0] % 17 + 8) * 16)
-            ext += b"\x00\x23" + struct.pack('>H', len(self.server_info.data.ticket_buf[host])) + self.server_info.data.ticket_buf[host]
+            ext += b"\x00\x23\x00\xd0" + os.urandom(208) # ticket
             ext += binascii.unhexlify(b"000d001600140601060305010503040104030301030302010203")
             ext += binascii.unhexlify(b"000500050100000000")
             ext += binascii.unhexlify(b"00120000")
@@ -196,7 +193,7 @@ class tls_ticket_auth(plain.plain):
         if self.overhead > 0:
             self.server_info.overhead -= self.overhead
         self.overhead = 0
-        if self.method in ['tls1.2_ticket_auth', 'tls1.2_ticket_fastauth']:
+        if self.method == 'tls1.2_ticket_auth' or self.method == 'tls1.2_ticket_fastauth':
             return (b'E'*2048, False, False)
         return (buf, True, False)
 
@@ -301,5 +298,15 @@ class tls_ticket_auth(plain.plain):
             ret = self.server_decode(b'')
             return (ret[0], True, True)
         # (buffer_to_recv, is_need_decrypt, is_need_to_encode_and_send_back)
-        return (b'', False, True)
 
+        buf = buf[48:]
+
+        host_name = b''
+        for index in range(len(buf)):
+            if index + 4 < len(buf):
+                if buf[index:index + 4] == b"\x00\x17\x00\x00":
+                    if buf[:index] != '':
+                        host_name = buf[:index]
+        host_name = host_name.decode('utf-8')
+
+        return (b'', False, True, host_name)
